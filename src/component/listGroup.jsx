@@ -11,7 +11,7 @@ const ListGroup = (props) => {
   ];
 
   return theme === "daytime" ? (
-    <div className="list-group col-3 mt-3 ">
+    <div className="list-group col-3  ">
       {options.map((o) => (
         <Link
           key={o.label}

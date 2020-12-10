@@ -31,12 +31,10 @@ code {
 }
 
 .FB {
-  left: 90%;
+  left: 91%;
 }
 
 .share-box {
-  left: 40%;
-  top: 40%;
   z-index: 999;
 }
 

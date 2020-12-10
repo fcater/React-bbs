@@ -14,10 +14,7 @@ const ShareBox = (props) => {
 
   return (
     shareBox && (
-      <div
-        className="share-box position-fixed w-25 bg-white rounded-lg shadow"
-        onDrag={onDrag}
-      >
+      <div className="share-box  bg-white rounded-lg shadow" onDrag={onDrag}>
         <p className="p-2 pl-3 pr-3 rounded-top text-dark d-flex justify-content-between drag">
           转发
           <span className="align-text-bottom pointer" onClick={onClose}>
@@ -43,7 +40,7 @@ const ShareBox = (props) => {
           />
           <input
             type="button"
-            className="btn  border-0  shadow-none ml-auto text-light bg-primary mt-2"
+            className="btn  border-0  shadow-none ml-auto text-light bg-primary mt-2 mb-2"
             value="发送"
             onClick={onShare}
           />

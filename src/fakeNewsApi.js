@@ -14,6 +14,7 @@ const article = [
         disliked: false,
         talk: false,
         share: false,
+        focus: 1,
         focusHeight: 1,
         likedNum: 12,
         comment: [{
