@@ -30,9 +30,14 @@ code {
   cursor: pointer;
 }
 
+.FB {
+  left: 90%;
+}
+
 .share-box {
   left: 40%;
   top: 40%;
+  z-index: 999;
 }
 
 .drag {

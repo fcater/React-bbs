@@ -11,7 +11,6 @@ class Container extends Component {
     shareword: "",
     commentTip: "最大输入不超过100个字",
     shareTip: "请输入",
-    shareBox: false,
   };
 
   gettime = () => {
@@ -27,18 +26,17 @@ class Container extends Component {
   };
 
   handleFocus = (article) => {
-    let { inputSize } = this.state;
+    const { articles } = this.state;
+    articles[articles.indexOf(article)].focusHeight = 3;
     article.talk = true;
-    inputSize === 1 ? (inputSize = 3) : (inputSize = 3);
-    this.setState({ inputSize });
+    this.setState({ articles });
   };
 
   handleBlur = (article) => {
-    let { talk } = this.state;
+    const { articles } = this.state;
+    articles[articles.indexOf(article)].focusHeight = 1;
     article.talk = false;
-    let { inputSize } = this.state;
-    inputSize === 3 ? (inputSize = 1) : (inputSize = 1);
-    this.setState({ inputSize, talk });
+    this.setState({ articles });
   };
 
   resize = (i) => {
@@ -66,13 +64,12 @@ class Container extends Component {
   };
 
   handleTalk = (article) => {
-    let { inputSize } = this.state;
+    article.talk = !article.talk;
     const { articles } = this.state;
-    const index = articles.indexOf(article);
-    articles[index].talk = !articles[index].talk;
-    article.talk ? (inputSize = 3) : (inputSize = 1);
-
-    this.setState({ articles, inputSize });
+    article.talk
+      ? (articles[articles.indexOf(article)].focusHeight = 3)
+      : (articles[articles.indexOf(article)].focusHeight = 1);
+    this.setState({ articles });
   };
 
   handleComment = (a) => {
@@ -94,17 +91,16 @@ class Container extends Component {
 
   handleShare = (a) => {
     a.share = false;
-    let { shareBox, articles, shareword } = this.state;
+    a.shareBox = !a.shareBox;
+    let { articles, shareword } = this.state;
     const article = { ...a };
     article.sharer = `Fcater :${shareword}`;
     article.id++;
     article.comment = [];
     article.likedNum = 0;
     articles.push(article);
-    shareBox = !shareBox;
-    this.setState({ shareBox, articles });
     shareword = "";
-    this.setState({ shareword });
+    this.setState({ articles, shareword });
   };
 
   handleShareWord = (e) => {
@@ -115,9 +111,14 @@ class Container extends Component {
 
   handleShareBoxOpen = (a) => {
     a.share = !a.share;
-    let { shareBox } = this.state;
-    shareBox = !shareBox;
-    this.setState({ shareBox });
+    const { articles } = this.state;
+    articles.forEach((article) => {
+      article.shareBox = false;
+      article.share = false;
+    });
+    articles[articles.indexOf(a)].share = true;
+    articles[articles.indexOf(a)].shareBox = true;
+    this.setState({ articles });
   };
 
   handleDrag = (a) => {
@@ -126,9 +127,9 @@ class Container extends Component {
 
   handleShareBoxClose = (a) => {
     a.share = false;
-    let { shareBox } = this.state;
-    shareBox = false;
-    this.setState({ shareBox });
+    const { articles } = this.state;
+    articles[articles.indexOf(a)].shareBox = false;
+    this.setState({ articles });
   };
 
   handleMouseEnter = (a) => {
@@ -151,7 +152,7 @@ class Container extends Component {
   };
 
   handleCommentDelete = (c) => {
-    console.log(c);
+    console.log("显示删除按钮");
   };
 
   render() {
@@ -179,32 +180,36 @@ class Container extends Component {
               <div className="card-body">
                 <div className="d-flex justify-content-between">
                   <a
-                    className="row p-2 bd-highlight "
+                    className="row p-3"
+                    style={{ height: "60%", width: "60%" }}
                     href="https://user.qzone.qq.com/1303140304"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img
                       src={a.portrait}
-                      height="80%"
-                      width="70%"
+                      height="100%"
                       alt=""
-                      className=" pl-0 pr-0 rounded-circle col"
+                      className="pl-0 pr-0 rounded-circle col-2 "
                     />
 
-                    <div className="col">
+                    <div className="col" width={"20px"}>
                       <h5 className="card-title mt-1">{a.userId}</h5>
                       <h6 className="mt-3">{datelabel}</h6>
                     </div>
                   </a>
                   {a.focus && (
-                    <p
-                      className=" p-0 mt-4 mb-5 bd-highlight pointer"
-                      height="30px"
+                    <div
+                      className="pointer"
                       onClick={() => this.handleDelete(a)}
+                      style={{
+                        height: "30px",
+                        width: "30px",
+                        textAlign: "center",
+                      }}
                     >
                       x
-                    </p>
+                    </div>
                   )}
                 </div>
                 <h6 className="card-subtitle mt-2 mb-2 text-muted font-weight-bold">
@@ -240,7 +245,6 @@ class Container extends Component {
                     <img
                       src={c.portrait}
                       height="100%"
-                      width="100%"
                       alt=""
                       className="ml-3 pl-0 pr-0 rounded-circle col-1"
                     />
@@ -260,7 +264,7 @@ class Container extends Component {
                     name="text"
                     value={this.state.talk}
                     cols="50"
-                    rows={this.state.inputSize}
+                    rows={a.focusHeight}
                     height="60px"
                     className="form-control "
                     aria-label="Text input with radio button"
@@ -272,7 +276,7 @@ class Container extends Component {
                   />
                   <input
                     type="button"
-                    className="btn ml-auto border-0  shadow-none "
+                    className="btn ml-auto border-0 p-0 m-2 shadow-none FB position-absolute"
                     value="发表"
                     onClick={() => this.handleComment(a)}
                   />
@@ -281,10 +285,10 @@ class Container extends Component {
               <ShareBox
                 shareword={this.state.shareword}
                 shareArticle={a}
-                shareBox={this.state.shareBox}
+                shareBox={a.shareBox}
                 placeholder={this.state.shareTip}
-                onClose={() => this.handleShareBoxClose(a)}
                 onChange={this.handleShareWord}
+                onClose={() => this.handleShareBoxClose(a)}
                 onShare={() => this.handleShare(a)}
                 onDrag={() => this.handleDrag(a)}
               />
