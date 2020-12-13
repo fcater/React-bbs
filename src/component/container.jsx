@@ -365,7 +365,7 @@ class Container extends Component {
                   ))}
 
                   <div
-                    className="d-flex flex-column mt-2 "
+                    className="d-flex justify-content-start mt-2 "
                     onFocus={() => this.handleFocus(a)}
                     onBlur={() => this.handleBlur(a)}
                   >
@@ -386,7 +386,7 @@ class Container extends Component {
                     />
                     <input
                       type="button"
-                      className="btn ml-auto border-0 p-0 m-2 shadow-none FB position-absolute"
+                      className="btn border-0 shadow-none text-light bg-primary ml-4 "
                       value="发送"
                       onClick={() => this.handleComment(a)}
                     />
