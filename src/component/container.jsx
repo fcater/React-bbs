@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import ShareBox from "./common/shareBox";
 import { getArticles } from "../fakeNewsApi";
 import { LikeSVG, TalkSVG, ShareSVG, HeartSVG } from "./common/SVG";
+import ShareBox from "./common/shareBox";
 import CreatBox from "./common/creatBox";
 import Draggable from "react-draggable";
 
@@ -10,10 +10,11 @@ class Container extends Component {
     articles: getArticles(),
     talk: {},
     shareword: "",
-    commentTip: "最大输入不超过100个字",
+    commentTip: {},
     shareTip: "请输入",
     newArticleTitle: "",
     newArticleImgUrl: "",
+    newArticlePlaceholder: "诉说现在的想法",
   };
 
   constructor(props) {
@@ -83,14 +84,14 @@ class Container extends Component {
     a.focusHeight = 1;
     a.talk = false;
     talk[a.id]
-      ? (commentTip = "最大输入不超过100个字")
-      : (commentTip = "必须输入内容");
+      ? (commentTip[a.id] = "还想再说...")
+      : (commentTip[a.id] = "评论不能为空。");
     talk[a.id] &&
       articles[articles.indexOf(a)].comment.push({
         id: commentId,
         userId: a.userId,
         portrait:
-          "https://qlogo1.store.qq.com/qzone/1303140304/1303140304/50?1527840070",
+          "http://r.photo.store.qq.com/psc?/V11wzYiE4Hy8dT/45NBuzDIW489QBoVep5mcXCCE9BbMyCwxJqW3B8V1hJ4SOOGGlQN36EpQZnbRRCLmhBSiOyHu9ockdCy0f3C7QTRW*YFS5BKF8Ote*IfNLQ!/r",
         content: talk[a.id],
       });
     talk[a.id] = "";
@@ -179,12 +180,6 @@ class Container extends Component {
     this.setState({ articles });
   };
 
-  handleCreatAticle = () => {
-    let { newAticle } = this.state;
-    newAticle = !newAticle;
-    this.setState({ newAticle });
-  };
-
   handleImgUpload = () => {
     this.imgRef.current.click();
   };
@@ -206,16 +201,28 @@ class Container extends Component {
   };
 
   handleNewArticle = () => {
-    let { articles, newArticleTitle, newArticleImgUrl } = this.state;
+    let {
+      articles,
+      newArticleTitle,
+      newArticleImgUrl,
+      newArticlePlaceholder,
+    } = this.state;
     const article = { ...articles[0] };
     article.title = newArticleTitle;
     article.img = newArticleImgUrl;
     article.id = articles.length + 1;
     article.likedNum = 0;
     article.comment = [];
-    articles.push(article);
+    newArticleTitle || newArticleImgUrl
+      ? articles.push(article)
+      : (newArticlePlaceholder = "请输入内容或选择一张图片");
     newArticleTitle = newArticleImgUrl = "";
-    this.setState({ articles, newArticleTitle, newArticleImgUrl });
+    this.setState({
+      articles,
+      newArticleTitle,
+      newArticleImgUrl,
+      newArticlePlaceholder,
+    });
   };
 
   render() {
@@ -234,6 +241,7 @@ class Container extends Component {
             ref={this.imgRef}
             newArticleTitle={this.state.newArticleTitle}
             imgUrl={this.state.newArticleImgUrl}
+            placeholder={this.state.newArticlePlaceholder}
             onUpload={this.handleImgUpload}
             onUrlChange={this.handleImgUrl}
             onTitle={this.handleNewArticleTitle}
@@ -296,14 +304,18 @@ class Container extends Component {
                   <h6 className="card-subtitle mt-2 mb-2 text-muted font-weight-bold">
                     {a.title}
                   </h6>
-                  <p className="card-text font-weight-bolder">{a.content}</p>
-                  <img
-                    width="60%"
-                    src={a.img}
-                    alt=""
-                    className="card-img-botton"
-                  />
-                  <div className="d-flex mt-4">
+                  {a.content && (
+                    <p className="card-text font-weight-bolder">{a.content}</p>
+                  )}
+                  {a.img && (
+                    <img
+                      width="60%"
+                      src={a.img}
+                      alt=""
+                      className="card-img-botton"
+                    />
+                  )}
+                  <div className="d-flex mt-3">
                     <HeartSVG likedNum={a.likedNum} />
                     <div className=" ml-auto ">
                       <LikeSVG a={a} onLiked={() => this.handleLike(a)} />
@@ -365,7 +377,9 @@ class Container extends Component {
                       rows={a.focusHeight}
                       className="form-control"
                       aria-label="Text input with radio button"
-                      placeholder={this.state.commentTip}
+                      placeholder={
+                        this.state.commentTip[a.id] || "组织语言中..."
+                      }
                       maxLength="100"
                       onChange={this.handleChange.bind(this, a)}
                       style={{ resize: "none", width: "90%" }}

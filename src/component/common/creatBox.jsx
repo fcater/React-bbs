@@ -4,6 +4,7 @@ const CreatBox = forwardRef((props, ref) => {
   const {
     newArticleTitle,
     imgUrl,
+    placeholder,
     onUpload,
     onUrlChange,
     onTitle,
@@ -19,13 +20,14 @@ const CreatBox = forwardRef((props, ref) => {
         <textarea
           name="text"
           cols="50"
-          rows="2"
+          rows="3"
           className="form-control "
           aria-label="Text input with radio button "
-          placeholder="说点什么把..."
-          maxLength="30"
+          placeholder={placeholder}
+          maxLength="100"
           value={newArticleTitle}
           onChange={onTitle}
+          style={{ resize: "none" }}
         />
         <div className="d-flex justify-content-between">
           <svg
