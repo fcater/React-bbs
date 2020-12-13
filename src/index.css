@@ -35,7 +35,8 @@ code {
 }
 
 .share-box {
-  z-index: 999;
+  left: 150px;
+  top: -500px;
 }
 
 .drag {

@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import ShareBox from "./common/shareBox";
-import { Rnd } from "react-rnd";
 import { getArticles } from "../fakeNewsApi";
-import { LikeSVG, TalkSVG, ShareSVG, HeartSVG, PlusSVG } from "./common/SVG";
+import { LikeSVG, TalkSVG, ShareSVG, HeartSVG } from "./common/SVG";
+import CreatBox from "./common/creatBox";
+import Draggable from "react-draggable";
 
 class Container extends Component {
   state = {
@@ -11,8 +12,16 @@ class Container extends Component {
     shareword: "",
     commentTip: "最大输入不超过100个字",
     shareTip: "请输入",
-    newAticle: false,
+    newArticleTitle: "",
+    newArticleImgUrl: "",
   };
+
+  constructor(props) {
+    super(props);
+    this.imgRef = React.createRef();
+  }
+
+  componentDidMount() {}
 
   gettime = () => {
     const date = new Date();
@@ -175,31 +184,79 @@ class Container extends Component {
     newAticle = !newAticle;
     this.setState({ newAticle });
   };
-  test = () => {};
+
+  handleImgUpload = () => {
+    this.imgRef.current.click();
+  };
+
+  handleImgUrl = () => {
+    let { newArticleImgUrl } = this.state;
+    const index = this.imgRef.current.files.length - 1;
+    const url = window.webkitURL.createObjectURL(
+      this.imgRef.current.files[index]
+    );
+    newArticleImgUrl = url;
+    this.setState({ newArticleImgUrl });
+  };
+
+  handleNewArticleTitle = (e) => {
+    let { newArticleTitle } = this.state;
+    newArticleTitle = e.currentTarget.value;
+    this.setState({ newArticleTitle });
+  };
+
+  handleNewArticle = () => {
+    let { articles, newArticleTitle, newArticleImgUrl } = this.state;
+    const article = { ...articles[0] };
+    article.title = newArticleTitle;
+    article.img = newArticleImgUrl;
+    article.id = articles.length + 1;
+    article.likedNum = 0;
+    article.comment = [];
+    articles.push(article);
+    newArticleTitle = newArticleImgUrl = "";
+    this.setState({ articles, newArticleTitle, newArticleImgUrl });
+  };
 
   render() {
     const { theme } = this.props;
     const datelabel = this.gettime();
     // console.log(datelabel, theme);
+    // componentWillMount = () => {
+    //   const upLoadRef = useRef();
+    //   console.log(this);
+    // };
+
     return (
       <React.Fragment>
         <div className="col">
+          <CreatBox
+            ref={this.imgRef}
+            newArticleTitle={this.state.newArticleTitle}
+            imgUrl={this.state.newArticleImgUrl}
+            onUpload={this.handleImgUpload}
+            onUrlChange={this.handleImgUrl}
+            onTitle={this.handleNewArticleTitle}
+            onNewArticle={this.handleNewArticle}
+          />
           {this.state.articles.map((a) => (
             <div
               key={a.id}
-              className="card pl-1 pr-1 bg-white"
+              className="p-1 mb-3 bg-white"
               onMouseEnter={() => this.handleMouseEnter(a)}
               onMouseLeave={() => this.handleMouseLeave(a)}
             >
-              <a
-                className="ml-2 mb-0 mt-2"
-                href="https://user.qzone.qq.com/1303140304"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {a.sharer}
-              </a>
-              <div className="card mt-3 border-secondary bg-light">
+              {a.sharer && (
+                <a
+                  className="ml-2 mb-0 mt-2"
+                  href="https://user.qzone.qq.com/1303140304"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {a.sharer}
+                </a>
+              )}
+              <div className="card  border-secondary bg-light">
                 <div className="card-body">
                   <div className="d-flex justify-content-between">
                     <a
@@ -316,43 +373,46 @@ class Container extends Component {
                     <input
                       type="button"
                       className="btn ml-auto border-0 p-0 m-2 shadow-none FB position-absolute"
-                      value="发表"
+                      value="发送"
                       onClick={() => this.handleComment(a)}
                     />
                   </div>
                 </div>
-                <Rnd
-                  default={{
-                    x: 50,
-                    y: 300,
-                    width: 500,
-                    height: 45,
+                <Draggable
+                  axis="both"
+                  handle=".handle"
+                  defaultPosition={{ x: 0, y: 0 }}
+                  bounds={{
+                    left: -820,
+                    right: 625,
+                    top: -470,
                   }}
-                  minWidth={500}
-                  minHeight={45}
-                  maxWidth={500}
-                  maxHeight={45}
-                  bounds="window"
+                  position={null}
+                  grid={[5, 5]}
+                  scale={1}
+                  onStart={this.handleStart}
+                  onDrag={this.handleDrag}
+                  onStop={this.handleStop}
                 >
-                  <ShareBox
-                    shareword={this.state.shareword}
-                    shareArticle={a}
-                    shareBox={a.shareBox}
-                    placeholder={this.state.shareTip}
-                    onChange={this.handleShareWord}
-                    onClose={() => this.handleShareBoxClose(a)}
-                    onShare={() => this.handleShare(a)}
-                    onDrag={() => this.handleDrag(a)}
-                  />
-                </Rnd>
+                  <div
+                    className="handle"
+                    style={{ width: "100%", height: "50%" }}
+                  >
+                    <ShareBox
+                      shareword={this.state.shareword}
+                      shareArticle={a}
+                      shareBox={a.shareBox}
+                      placeholder={this.state.shareTip}
+                      onChange={this.handleShareWord}
+                      onClose={() => this.handleShareBoxClose(a)}
+                      onShare={() => this.handleShare(a)}
+                    />
+                  </div>
+                </Draggable>
               </div>
             </div>
           ))}
         </div>
-        <PlusSVG
-          newAticle={this.state.newAticle}
-          onNewAticle={this.handleCreatAticle}
-        />
       </React.Fragment>
     );
   }

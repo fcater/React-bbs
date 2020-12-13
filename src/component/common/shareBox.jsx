@@ -9,12 +9,11 @@ const ShareBox = (props) => {
     onClose,
     onChange,
     onShare,
-    onDrag,
   } = props;
 
   return (
     shareBox && (
-      <div className="share-box  bg-white rounded-lg shadow" onDrag={onDrag}>
+      <div className="share-box position-absolute bg-white rounded-lg shadow">
         <p className="p-2 pl-3 pr-3 rounded-top text-dark d-flex justify-content-between drag">
           转发
           <span className="align-text-bottom pointer" onClick={onClose}>
@@ -22,7 +21,7 @@ const ShareBox = (props) => {
           </span>
         </p>
 
-        <div className="ml-3 mr-3 p-2 row bg-light rounded-lg pointer">
+        <div className="ml-3 mr-3 p-2 row bg-light rounded-lg handle pointer">
           <img width="50px" height="50px" src={shareArticle.img} alt="" />
           <p className="ml-3">{shareArticle.title}</p>
         </div>
