@@ -10,7 +10,7 @@ const NavBar = (props) => {
         className="navbar-toggler"
         type="button"
         data-toggle="collapse"
-        data-target="navbarSupportedContent"
+        data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent"
         aria-expanded="false"
         aria-label="Toggle navigation"
@@ -67,8 +67,8 @@ const NavBar = (props) => {
             搜索
           </button>
         </form>
-        <ul className="navbar-nav">
-          <li className="nav-item dropdown">
+        <ul className="navbar-nav d-flex justify-content-between">
+          <li className="nav-item dropdown" style={{ width: "50%" }}>
             <a
               className="nav-link dropdown-toggle"
               href="/#"
@@ -103,7 +103,7 @@ const NavBar = (props) => {
             </div>
           </li>
 
-          <li className="nav-item">
+          <li className="nav-item" style={{ width: "40%" }}>
             <a className="nav-link" href="/#">
               <svg
                 width="2em"
@@ -127,7 +127,7 @@ const NavBar = (props) => {
         className="navbar-toggler"
         type="button"
         data-toggle="collapse"
-        data-target="navbarSupportedContent"
+        data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent"
         aria-expanded="false"
         aria-label="Toggle navigation"

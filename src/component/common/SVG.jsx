@@ -26,12 +26,12 @@ const LikeSVG = (props) => {
   const { a, onLiked } = props;
   return (
     <svg
-      width="2em"
+      width="100%"
       viewBox="0 0 16 16"
       className={
         a.liked
-          ? "bi bi-hand-thumbs-up pointer mr-3 text-danger"
-          : "bi bi-hand-thumbs-up pointer mr-3 "
+          ? "bi bi-hand-thumbs-up pointer mr-1 text-danger"
+          : "bi bi-hand-thumbs-up pointer mr-1 "
       }
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
@@ -46,12 +46,12 @@ const TalkSVG = (props) => {
   const { a, onTalk } = props;
   return (
     <svg
-      width="2em"
+      width="100%"
       viewBox="0 0 16 16"
       className={
         a.talk
-          ? "bi bi-chat-left-dots-fill pointer mr-3 text-primary"
-          : "bi bi-chat-left-dots-fill pointer mr-3"
+          ? "bi bi-chat-left-dots-fill pointer mr-1 text-primary"
+          : "bi bi-chat-left-dots-fill pointer mr-1"
       }
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
@@ -68,8 +68,7 @@ const ShareSVG = (props) => {
   const { a, onShare } = props;
   return (
     <svg
-      width="2em"
-      height="2em"
+      width="100%"
       viewBox="0 0 16 16"
       className={
         a.share

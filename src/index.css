@@ -35,11 +35,11 @@ code {
 }
 
 .share-box {
-  left: 150px;
+  left: 1em;
   top: -500px;
 }
 
-.drag {
+.drag-head {
   cursor: move;
   background-color: rgb(240, 234, 234);
 }

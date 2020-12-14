@@ -226,7 +226,7 @@ class Container extends Component {
   };
 
   render() {
-    const { theme } = this.props;
+    // const { theme } = this.props;
     const datelabel = this.gettime();
     // console.log(datelabel, theme);
     // componentWillMount = () => {
@@ -266,24 +266,33 @@ class Container extends Component {
               )}
               <div className="card  border-secondary bg-light">
                 <div className="card-body">
-                  <div className="d-flex justify-content-between">
+                  <div
+                    className="d-flex justify-content-between"
+                    style={{ height: "100%", width: "100%" }}
+                  >
                     <a
-                      className="row p-3"
-                      style={{ height: "60%", width: "60%" }}
+                      className="d-flex justify-content-start p-2"
                       href="https://user.qzone.qq.com/1303140304"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <img
                         src={a.portrait}
-                        height="100%"
                         alt=""
-                        className="pl-0 pr-0 rounded-circle col-2 "
+                        className="pl-0 pr-0 rounded-circle  "
+                        style={{ width: "4em", height: "4em" }}
                       />
 
-                      <div className="col" width={"20px"}>
-                        <h5 className="card-title mt-1">{a.userId}</h5>
-                        <h6 className="mt-3">{datelabel}</h6>
+                      <div className="col" width={"20%"}>
+                        <h6
+                          className="card-title mt-1"
+                          style={{ fontSize: "1em", fontWeight: "bold" }}
+                        >
+                          {a.userId}
+                        </h6>
+                        <h6 className="mt-3" style={{ fontSize: "1em" }}>
+                          {datelabel}
+                        </h6>
                       </div>
                     </a>
                     {a.focus && (
@@ -315,9 +324,15 @@ class Container extends Component {
                       className="card-img-botton"
                     />
                   )}
-                  <div className="d-flex mt-3">
+                  <div
+                    className="d-flex justify-content-between mt-3"
+                    style={{ width: "100%" }}
+                  >
                     <HeartSVG likedNum={a.likedNum} />
-                    <div className=" ml-auto ">
+                    <div
+                      className="d-flex justify-content-between ml-auto"
+                      style={{ width: "18%" }}
+                    >
                       <LikeSVG a={a} onLiked={() => this.handleLike(a)} />
                       <TalkSVG a={a} onTalk={() => this.handleTalk(a)} />
                       <ShareSVG
@@ -328,7 +343,7 @@ class Container extends Component {
                   </div>
                   {a.comment.map((c) => (
                     <div
-                      className="row justify-content-start m-1 ml-4 border border-primary rounded-pill"
+                      className="d-flex justify-content-start m-1 ml-4 border border-primary rounded-pill"
                       key={c.id}
                       style={{
                         width: "80%",
@@ -343,12 +358,15 @@ class Container extends Component {
                     >
                       <img
                         src={c.portrait}
-                        height="100%"
                         alt=""
-                        className="ml-2 mt-auto mb-auto pl-0 pr-0 rounded-circle col-1"
+                        className="ml-2 mt-auto mb-auto pl-0 pr-0 rounded-circle"
+                        style={{ width: "3em", height: "3em" }}
                       />
-                      <div className="col-xl-10">
-                        <h6 className="card-title pt-2 mb-1">
+                      <div style={{ width: "60%" }}>
+                        <h6
+                          className="card-title pt-2 mb-1"
+                          style={{ fontSize: "1em" }}
+                        >
                           {c.userId}：{c.content}
                         </h6>
                         <p className="mb-1">{datelabel}</p>
@@ -408,10 +426,7 @@ class Container extends Component {
                   onDrag={this.handleDrag}
                   onStop={this.handleStop}
                 >
-                  <div
-                    className="handle"
-                    style={{ width: "100%", height: "50%" }}
-                  >
+                  <div>
                     <ShareBox
                       shareword={this.state.shareword}
                       shareArticle={a}
