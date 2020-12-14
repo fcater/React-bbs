@@ -32,7 +32,7 @@ class Container extends Component {
       "月" +
       newdate.slice(8, 10) +
       "日 " +
-      newdate.slice(10, 15);
+      newdate.slice(11, 16);
     return datelabel;
   };
 
