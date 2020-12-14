@@ -154,7 +154,7 @@ class Container extends Component {
 
   handleDelete = (a) => {
     const { articles } = this.state;
-    articles.pop(a);
+    articles.splice(articles.indexOf(a), 1);
     this.setState({ articles });
   };
 
