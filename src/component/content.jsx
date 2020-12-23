@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import ListGroup from "./listGroup";
-import Container from "./container";
+import ListGroup from "./container/listGroup";
+import Container from "./container/container";
 // document.documentElement.clientHeight,
 // document.documentElement.clientWidth
 
@@ -25,7 +25,6 @@ class Content extends Component {
       <div className="container">
         <div className="row">
           {this.state.deviceType === "computer" && <ListGroup theme={theme} />}
-
           <Container theme={theme} />
         </div>
       </div>

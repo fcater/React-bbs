@@ -1,13 +1,19 @@
 import React, { Component } from "react";
-import { getArticles } from "../fakeNewsApi";
-import { LikeSVG, TalkSVG, ShareSVG, HeartSVG } from "./common/SVG";
-import ShareBox from "./common/shareBox";
-import CreatBox from "./common/creatBox";
+import { getArticles, gettime, getArticleDemo } from "./../../fakeNewsApi";
+import ShareBox from "../common/shareBox";
+import CreatBox from "../common/creatBox";
+import CommentArea from "./commentArea";
+import Comment from "./comment";
+import SVG_Group from "./SVG-group";
+import User from "./user";
 import Draggable from "react-draggable";
+import ArticleInfo from "./articleInfo";
+import Sharer from "./sharer";
 
 class Container extends Component {
   state = {
     articles: getArticles(),
+    articleDemo: getArticleDemo(),
     talk: {},
     shareword: "",
     commentTip: {},
@@ -23,18 +29,6 @@ class Container extends Component {
   }
 
   componentDidMount() {}
-
-  gettime = () => {
-    const date = new Date();
-    const newdate = date.toLocaleString("chinese", { hour12: false });
-    const datelabel =
-      newdate.slice(5, 7) +
-      "月" +
-      newdate.slice(8, 10) +
-      "日 " +
-      newdate.slice(11, 16);
-    return datelabel;
-  };
 
   handleFocus = (article) => {
     const { articles } = this.state;
@@ -203,12 +197,14 @@ class Container extends Component {
   handleNewArticle = () => {
     let {
       articles,
+      articleDemo,
       newArticleTitle,
       newArticleImgUrl,
       newArticlePlaceholder,
     } = this.state;
-    const article = { ...articles[0] };
+    const article = { ...articleDemo };
     article.title = newArticleTitle;
+    article.datelabel = gettime();
     article.img = newArticleImgUrl;
     article.id = articles.length + 1;
     article.likedNum = 0;
@@ -217,6 +213,7 @@ class Container extends Component {
       ? articles.push(article)
       : (newArticlePlaceholder = "请输入内容或选择一张图片");
     newArticleTitle = newArticleImgUrl = "";
+
     this.setState({
       articles,
       newArticleTitle,
@@ -225,14 +222,15 @@ class Container extends Component {
     });
   };
 
+  sortByTime = () => {
+    const { articles } = this.state;
+    return articles.reverse();
+  };
+
   render() {
     // const { theme } = this.props;
-    const datelabel = this.gettime();
-    // console.log(datelabel, theme);
-    // componentWillMount = () => {
-    //   const upLoadRef = useRef();
-    //   console.log(this);
-    // };
+    // console.log(theme);
+    const sortedByTime = [...this.state.articles].reverse();
 
     return (
       <React.Fragment>
@@ -246,169 +244,40 @@ class Container extends Component {
             onUrlChange={this.handleImgUrl}
             onTitle={this.handleNewArticleTitle}
             onNewArticle={this.handleNewArticle}
-          />
-          {this.state.articles.map((a) => (
+          ></CreatBox>
+          {sortedByTime.map((a) => (
             <div
               key={a.id}
               className="p-1 mb-3 bg-white"
               onMouseEnter={() => this.handleMouseEnter(a)}
               onMouseLeave={() => this.handleMouseLeave(a)}
             >
-              {a.sharer && (
-                <a
-                  className="ml-2 mb-0 mt-2"
-                  href="https://user.qzone.qq.com/1303140304"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {a.sharer}
-                </a>
-              )}
+              <Sharer a={a} />
               <div className="card  border-secondary bg-light">
                 <div className="card-body">
-                  <div
-                    className="d-flex justify-content-between"
-                    style={{ height: "100%", width: "100%" }}
-                  >
-                    <a
-                      className="d-flex justify-content-start p-2"
-                      href="https://user.qzone.qq.com/1303140304"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={a.portrait}
-                        alt=""
-                        className="pl-0 pr-0 rounded-circle  "
-                        style={{ width: "4em", height: "4em" }}
-                      />
-
-                      <div className="col" width={"20%"}>
-                        <h6
-                          className="card-title mt-1"
-                          style={{ fontSize: "1em", fontWeight: "bold" }}
-                        >
-                          {a.userId}
-                        </h6>
-                        <h6 className="mt-3" style={{ fontSize: "1em" }}>
-                          {datelabel}
-                        </h6>
-                      </div>
-                    </a>
-                    {a.focus && (
-                      <div
-                        className="pointer"
-                        onClick={() => this.handleDelete(a)}
-                        style={{
-                          color: "red",
-                          height: "30px",
-                          width: "30px",
-                          textAlign: "center",
-                        }}
-                      >
-                        x
-                      </div>
-                    )}
-                  </div>
-                  <h6 className="card-subtitle mt-2 mb-2 text-muted font-weight-bold">
-                    {a.title}
-                  </h6>
-                  {a.content && (
-                    <p className="card-text font-weight-bolder">{a.content}</p>
-                  )}
-                  {a.img && (
-                    <img
-                      width="60%"
-                      src={a.img}
-                      alt=""
-                      className="card-img-botton"
-                    />
-                  )}
-                  <div
-                    className="d-flex justify-content-between mt-3"
-                    style={{ width: "100%" }}
-                  >
-                    <HeartSVG likedNum={a.likedNum} />
-                    <div
-                      className="d-flex justify-content-between ml-auto"
-                      style={{ width: "18%" }}
-                    >
-                      <LikeSVG a={a} onLiked={() => this.handleLike(a)} />
-                      <TalkSVG a={a} onTalk={() => this.handleTalk(a)} />
-                      <ShareSVG
-                        a={a}
-                        onShare={() => this.handleShareBoxOpen(a)}
-                      />
-                    </div>
-                  </div>
-                  {a.comment.map((c) => (
-                    <div
-                      className="d-flex justify-content-start m-1 ml-4 border border-primary rounded-pill"
-                      key={c.id}
-                      style={{
-                        width: "80%",
-                        backgroundColor: "rgb(245,245,245)",
-                      }}
-                      onMouseEnter={() => {
-                        this.handleMouseEnterComment(a, c);
-                      }}
-                      onMouseLeave={() => {
-                        this.handleMouseLeaveComment(a, c);
-                      }}
-                    >
-                      <img
-                        src={c.portrait}
-                        alt=""
-                        className="ml-2 mt-auto mb-auto pl-0 pr-0 rounded-circle"
-                        style={{ width: "3em", height: "3em" }}
-                      />
-                      <div style={{ width: "60%" }}>
-                        <h6
-                          className="card-title pt-2 mb-1"
-                          style={{ fontSize: "1em" }}
-                        >
-                          {c.userId}：{c.content}
-                        </h6>
-                        <p className="mb-1">{datelabel}</p>
-                      </div>
-                      {c.mouseEnterComment && (
-                        <div
-                          className="mt-auto mb-auto pointer text-danger"
-                          onClick={() => this.handleCommentDelete(a, c)}
-                        >
-                          x
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  <div
-                    className="d-flex justify-content-start mt-2 "
-                    onFocus={() => this.handleFocus(a)}
-                    onBlur={() => this.handleBlur(a)}
-                  >
-                    <textarea
-                      id={a.id}
-                      name="text"
-                      value={this.state.talk[a.id]}
-                      cols="40"
-                      rows={a.focusHeight}
-                      className="form-control"
-                      aria-label="Text input with radio button"
-                      placeholder={
-                        this.state.commentTip[a.id] || "组织语言中..."
-                      }
-                      maxLength="100"
-                      onChange={this.handleChange.bind(this, a)}
-                      style={{ resize: "none", width: "90%" }}
-                    />
-                    <input
-                      type="button"
-                      className="btn border-0 shadow-none text-light bg-primary ml-4 "
-                      value="发送"
-                      onClick={() => this.handleComment(a)}
-                    />
-                  </div>
+                  <User a={a} onDelete={this.handleDelete} />
+                  <ArticleInfo a={a} />
+                  <SVG_Group
+                    a={a}
+                    onLike={this.handleLike}
+                    onTalk={this.handleTalk}
+                    onShareBoxOpen={this.handleShareBoxOpen}
+                  ></SVG_Group>
+                  <Comment
+                    a={a}
+                    onMouseEnterComment={this.handleMouseEnterComment}
+                    onMouseLeaveComment={this.handleMouseLeaveComment}
+                    onCommentDelete={this.handleCommentDelete}
+                  ></Comment>
+                  <CommentArea
+                    a={a}
+                    talk={this.state.talk}
+                    commentTip={this.state.commentTip}
+                    onFocus={this.handleFocus}
+                    onBlur={this.handleBlur}
+                    onChange={this.handleChange}
+                    onComment={this.handleComment}
+                  ></CommentArea>
                 </div>
                 <Draggable
                   axis="both"
