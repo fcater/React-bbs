@@ -43,3 +43,19 @@ code {
   cursor: move;
   background-color: rgb(240, 234, 234);
 }
+
+.homeIcon:hover {
+  color: rgb(100, 99, 161);
+}
+.personInfoIcon:hover {
+  color: rgb(21, 142, 172);
+}
+.settingIcon:hover {
+  color: rgb(194, 84, 84);
+}
+.logoutIcon:hover {
+  color: rgb(105, 231, 94);
+}
+.topIcon:hover {
+  color: rgb(255, 255, 255);
+}

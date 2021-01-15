@@ -1,24 +1,38 @@
 import React from "react";
 import { LikeSVG, TalkSVG, ShareSVG, HeartSVG } from "../common/SVG";
 
-const SVG_Group = (props) => {
-  const { a, onLike, onTalk, onShareBoxOpen } = props;
+const SvgGroup = ({
+  theme,
+  device,
+  a,
+  user,
+  onLike,
+  onTalk,
+  onShareBoxOpen,
+}) => {
   return (
     <div
-      className="d-flex justify-content-between mt-3"
+      className="d-flex justify-content-between mt-3 row"
       style={{ width: "100%" }}
     >
-      <HeartSVG likedNum={a.likedNum} />
-      <div
-        className="d-flex justify-content-between ml-auto"
-        style={{ width: "18%" }}
-      >
-        <LikeSVG a={a} onLiked={() => onLike(a)} />
-        <TalkSVG a={a} onTalk={() => onTalk(a)} />
-        <ShareSVG a={a} onShare={() => onShareBoxOpen(a)} />
-      </div>
+      <HeartSVG like={a.like} theme={theme} />
+      {user && (
+        <div
+          className="d-flex justify-content-between ml-auto"
+          style={{ width: "20%" }}
+        >
+          <LikeSVG
+            a={a}
+            user={user || {}}
+            device={device}
+            onLike={() => onLike(a)}
+          />
+          <TalkSVG a={a} onTalk={onTalk} device={device} />
+          <ShareSVG a={a} device={device} onShare={() => onShareBoxOpen(a)} />
+        </div>
+      )}
     </div>
   );
 };
 
-export default SVG_Group;
+export default SvgGroup;

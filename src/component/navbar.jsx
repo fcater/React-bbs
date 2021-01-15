@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const NavBar = (props) => {
-  const { theme } = props;
-
+const NavBar = ({ theme, user, onQuery, onQueryOption }) => {
   return theme === "daytime" ? (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav id="top" className="navbar navbar-expand-lg navbar-light bg-light">
       <button
         className="navbar-toggler"
         type="button"
@@ -33,96 +31,114 @@ const NavBar = (props) => {
 
           <li className="nav-item ml-5">
             <a className="nav-link" href="/#">
-              <svg
-                width="2em"
-                height="2em"
-                viewBox="0 0 16 16"
-                className="bi bi-person-circle"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z" />
-                <path d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" />
-              </svg>
+              {user ? (
+                <img
+                  src={user.portrait}
+                  alt=""
+                  className="pl-0 pr-0 rounded-circle  "
+                  style={{
+                    width: "2em",
+                    height: "2em",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <i className="fa fa-user-circle-o fa-2x"></i>
+              )}
             </a>
           </li>
           <li className="nav-item">
             <a className="nav-link disabled" href="/#" aria-disabled="true">
-              FcatQone(论坛名称)
+              {user && user.userName} —— (欢迎来到我的论坛)
             </a>
           </li>
         </ul>
         <form className="form-inline my-2 my-lg-0">
-          <input
-            className="form-control mr-sm-2"
-            type="search"
-            placeholder="输入..."
-            aria-label="Search"
-          />
-          <button
-            className="btn btn-outline-success my-2 my-sm-0"
-            type="submit"
+          <select
+            className="custom-select"
+            id="inputGroupSelect01"
+            onChange={onQueryOption.bind(this)}
           >
-            搜索
-          </button>
+            <option value="userName">用户名</option>
+            <option value="title">标题</option>
+          </select>
+
+          <div>
+            <input
+              className="form-control mr-sm-2"
+              type="search"
+              placeholder="输入..."
+              aria-label="Search"
+              onChange={onQuery.bind(this)}
+            />
+            <button
+              className="btn btn-outline-success my-2 my-sm-0"
+              type="button"
+              onClick={null}
+            >
+              搜索
+            </button>
+          </div>
         </form>
         <ul className="navbar-nav d-flex justify-content-between">
-          <li className="nav-item dropdown" style={{ width: "50%" }}>
-            <a
-              className="nav-link dropdown-toggle"
-              href="/#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <svg
-                width="2em"
-                height="2em"
-                viewBox="0 0 16 16"
-                className="bi bi-person-lines-fill"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
+          {user && (
+            <li className="nav-item dropdown" style={{ width: "50%" }}>
+              <a
+                className="nav-link dropdown-toggle"
+                href="/#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
               >
-                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7 1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm2 9a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
-              </svg>
-            </a>
-            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-              <Link className="dropdown-item" to="/directory">
-                通讯录
-              </Link>
-              <Link className="dropdown-item" to="/personal-information">
-                个人资料
-              </Link>
-              <div className="dropdown-divider"></div>
-              <Link className="dropdown-item" to="/setting">
-                设置
-              </Link>
-            </div>
-          </li>
-
+                <svg
+                  width="2em"
+                  height="2em"
+                  viewBox="0 0 16 16"
+                  className="bi bi-person-lines-fill"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7 1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm2 9a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
+                </svg>
+                {/* 我还挺喜欢这个图标的fontawesome没找到一样的 */}
+              </a>
+              <div
+                className="dropdown-menu dropdown-menu-right"
+                aria-labelledby="navbarDropdown"
+              >
+                <Link className="dropdown-item" to="/personal-information">
+                  个人资料
+                </Link>
+                <Link className="dropdown-item" to="/logout">
+                  注销
+                </Link>
+                <div className="dropdown-divider"></div>
+                {user.isAdmin && (
+                  <Link className="dropdown-item" to="/userlist">
+                    用户列表
+                  </Link>
+                )}
+                <Link className="dropdown-item" to="/setting">
+                  设置
+                </Link>
+              </div>
+            </li>
+          )}
           <li className="nav-item" style={{ width: "40%" }}>
-            <a className="nav-link" href="/#">
-              <svg
-                width="2em"
-                height="2em"
-                viewBox="0 0 16 16"
-                className="bi bi-arrow-right-square-fill"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm2.5 8.5a.5.5 0 0 1 0-1h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5z" />
-              </svg>
-            </a>
+            {!user && (
+              <Link className="nav-link" to="/login">
+                <i className="fa fa-arrow-circle-right fa-2x"></i>
+              </Link>
+            )}
           </li>
         </ul>
       </div>
     </nav>
   ) : (
     //夜间模式
-    <nav className="navbar navbar-expand-lg  text-light bg-dark">
+    <nav id="top" className="navbar navbar-expand-lg navbar-light bg-dark">
       <button
         className="navbar-toggler"
         type="button"
@@ -137,102 +153,126 @@ const NavBar = (props) => {
 
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
-          <li className="nav-item active mr-3">
-            <a className="nav-link" href="/#">
+          <li className="nav-item active mr-3 ">
+            <Link className="nav-link text-light" to="/">
               主页 <span className="sr-only">(current)</span>
-            </a>
+            </Link>
           </li>
           <li className="nav-item mr-5">
-            <a className="nav-link" href="/#">
+            <Link className="nav-link text-light" to="/message">
               留言
-            </a>
+            </Link>
           </li>
 
           <li className="nav-item ml-5">
             <a className="nav-link" href="/#">
-              <svg
-                width="2em"
-                height="2em"
-                viewBox="0 0 16 16"
-                className="bi bi-person-circle"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z" />
-                <path d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" />
-              </svg>
+              {user ? (
+                <img
+                  src={user.portrait}
+                  alt=""
+                  className="pl-0 pr-0 rounded-circle"
+                  style={{
+                    width: "2em",
+                    height: "2em",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <i className="fa fa-user-circle-o fa-2x text-light"></i>
+              )}
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link disabled" href="/#" aria-disabled="true">
-              FcatQone(论坛名称)
+            <a
+              className="nav-link text-light disabled"
+              href="/#"
+              aria-disabled="true"
+            >
+              {user && user.userName} —— (欢迎来到我的论坛)
             </a>
           </li>
         </ul>
         <form className="form-inline my-2 my-lg-0">
-          <input
-            className="form-control mr-sm-2"
-            type="search"
-            placeholder="输入..."
-            aria-label="Search"
-          />
-          <button
-            className="btn btn-outline-success my-2 my-sm-0"
-            type="submit"
+          <select
+            className="custom-select"
+            id="inputGroupSelect01"
+            onChange={onQueryOption.bind(this)}
           >
-            搜索
-          </button>
-        </form>
-        <ul className="navbar-nav">
-          <li className="nav-item dropdown">
-            <a
-              className="nav-link dropdown-toggle"
-              href="/#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
+            <option value="userName">用户名</option>
+            <option value="title">标题</option>
+          </select>
+          <div>
+            <input
+              className="form-control mr-sm-2"
+              type="search"
+              placeholder="输入..."
+              aria-label="Search"
+              onChange={onQuery.bind(this)}
+            />
+            <button
+              className="btn btn-outline-success my-2 my-sm-0"
+              type="button"
+              onClick={null}
             >
-              <svg
-                width="2em"
-                height="2em"
-                viewBox="0 0 16 16"
-                className="bi bi-person-lines-fill"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
+              搜索
+            </button>
+          </div>
+        </form>
+        <ul className="navbar-nav d-flex justify-content-between">
+          {user && (
+            <li className="nav-item dropdown" style={{ width: "50%" }}>
+              <a
+                className="nav-link dropdown-toggle"
+                href="/#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
               >
-                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7 1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm2 9a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
-              </svg>
-            </a>
-            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a className="dropdown-item" href="/#">
-                通讯录
+                <svg
+                  width="2em"
+                  height="2em"
+                  viewBox="0 0 16 16"
+                  className="bi bi-person-lines-fill"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7 1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm2 9a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
+                </svg>
+                {/* 我还挺喜欢这个图标的fontawesome没找到一样的 */}
               </a>
-              <a className="dropdown-item" href="/#">
-                个人资料
-              </a>
-              <div className="dropdown-divider"></div>
-              <a className="dropdown-item" href="/#">
-                设置
-              </a>
-            </div>
-          </li>
-
-          <li className="nav-item">
-            <a className="nav-link" href="/#">
-              <svg
-                width="2em"
-                height="2em"
-                viewBox="0 0 16 16"
-                className="bi bi-arrow-right-square-fill"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
+              <div
+                className="dropdown-menu dropdown-menu-right bg-dark"
+                aria-labelledby="navbarDropdown"
               >
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm2.5 8.5a.5.5 0 0 1 0-1h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5z" />
-              </svg>
-            </a>
+                <Link
+                  className="dropdown-item text-light"
+                  to="/personal-information"
+                >
+                  个人资料
+                </Link>
+                <Link className="dropdown-item text-light" to="/logout">
+                  注销
+                </Link>
+                <div className="dropdown-divider"></div>
+                {user.isAdmin && (
+                  <Link className="dropdown-item text-light" to="/userlist">
+                    用户列表
+                  </Link>
+                )}
+                <Link className="dropdown-item text-light" to="/setting">
+                  设置
+                </Link>
+              </div>
+            </li>
+          )}
+          <li className="nav-item" style={{ width: "40%" }}>
+            {!user && (
+              <Link className="nav-link" to="/login">
+                <i className="fa fa-arrow-circle-right fa-2x text-light"></i>
+              </Link>
+            )}
           </li>
         </ul>
       </div>

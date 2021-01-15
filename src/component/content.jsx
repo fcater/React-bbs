@@ -1,31 +1,25 @@
 import React, { Component } from "react";
 import ListGroup from "./container/listGroup";
 import Container from "./container/container";
-// document.documentElement.clientHeight,
-// document.documentElement.clientWidth
+import ShortcutBar from "./common/shortcutBar";
 
 class Content extends Component {
-  state = {
-    deviceType: "computer",
-  };
-
-  UNSAFE_componentWillMount = () => {
-    let { deviceType } = this.state;
-    if (document.documentElement.clientWidth < 500) {
-      deviceType = "mobile";
-      this.setState({ deviceType });
-    } else {
-      return;
-    }
-  };
+  state = {};
 
   render() {
-    const { theme } = this.props;
+    const { theme, device, user, dateRevise, query } = this.props;
     return (
       <div className="container">
         <div className="row">
-          {this.state.deviceType === "computer" && <ListGroup theme={theme} />}
-          <Container theme={theme} />
+          {device === "computer" && <ListGroup theme={theme} />}
+          <Container
+            theme={theme}
+            device={device}
+            user={user}
+            dateRevise={dateRevise}
+            query={query}
+          />
+          {device === "computer" && <ShortcutBar theme={theme} />}
         </div>
       </div>
     );

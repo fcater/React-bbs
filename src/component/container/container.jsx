@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { getArticles, gettime, getArticleDemo } from "./../../fakeNewsApi";
+import articleService from "../../services/articleService";
 import ShareBox from "../common/shareBox";
 import CreatBox from "../common/creatBox";
 import CommentArea from "./commentArea";
 import Comment from "./comment";
-import SVG_Group from "./SVG-group";
+import SvgGroup from "./svg-group";
 import User from "./user";
 import Draggable from "react-draggable";
 import ArticleInfo from "./articleInfo";
@@ -12,15 +12,11 @@ import Sharer from "./sharer";
 
 class Container extends Component {
   state = {
-    articles: getArticles(),
-    articleDemo: getArticleDemo(),
-    talk: {},
-    shareword: "",
-    commentTip: {},
-    shareTip: "请输入",
-    newArticleTitle: "",
-    newArticleImgUrl: "",
-    newArticlePlaceholder: "诉说现在的想法",
+    user: this.props.user,
+    articles: [],
+    newArticle: { placeholder: "诉说现在的想法" },
+    talkArea: {},
+    share: { shareWord: "", shareTip: "请输入" },
   };
 
   constructor(props) {
@@ -28,251 +24,268 @@ class Container extends Component {
     this.imgRef = React.createRef();
   }
 
-  componentDidMount() {}
-
-  handleFocus = (article) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(article)].focusHeight = 3;
-    article.talk = true;
+  async componentDidMount() {
+    const { data: articles } = await articleService.getArticles();
+    this.initializeLocalArticleProperties(articles);
+    //获取文章并初始化评论区和分享开关
     this.setState({ articles });
-  };
+  }
 
-  handleBlur = (article) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(article)].focusHeight = 1;
-    article.talk = false;
-    this.setState({ articles });
-  };
+  componentWillUnmount() {
+    this.setState = (state, callback) => {
+      return;
+    };
+  }
+  //当组件被注销后停止异步操作
 
-  handleLike = (article) => {
-    const { articles } = this.state;
-    const index = articles.indexOf(article);
-    articles[index].liked = !articles[index].liked;
-    articles[index].disliked = false;
+  handleLike = async (article) => {
+    const { user } = this.state;
+    await articleService.likeArticles(article._id, user);
 
-    articles[index].liked
-      ? (articles[index].likedNum += 1)
-      : (articles[index].likedNum -= 1);
-
-    this.setState({ articles });
+    const { data } = await articleService.getArticles();
+    this.initializeLocalArticleProperties(data);
+    this.setState({ articles: data });
   };
 
   handleChange = (a, e) => {
-    let talk = { ...this.state.talk };
-    talk[a.id] = e.currentTarget.value;
-    this.setState({ talk });
+    let { talkArea } = this.state;
+    talkArea[a._id].value = e.currentTarget.value;
+    this.setState({ talkArea });
   };
 
-  handleTalk = (article) => {
-    article.talk = !article.talk;
-    const { articles } = this.state;
-    article.talk
-      ? (articles[articles.indexOf(article)].focusHeight = 3)
-      : (articles[articles.indexOf(article)].focusHeight = 1);
-    this.setState({ articles });
+  handleFocus = (a) => {
+    let { talkArea, articles } = this.state;
+    articles[articles.indexOf(a)].talk = true;
+    talkArea[a._id].commentHeight = 3;
+    this.setState({ talkArea, articles });
   };
 
-  handleComment = (a) => {
-    let { articles, talk, commentTip } = this.state;
-    const commentId = a.comment.length + 1;
-    a.focusHeight = 1;
-    a.talk = false;
-    talk[a.id]
-      ? (commentTip[a.id] = "还想再说...")
-      : (commentTip[a.id] = "评论不能为空。");
-    talk[a.id] &&
-      articles[articles.indexOf(a)].comment.push({
-        id: commentId,
-        userId: a.userId,
-        portrait:
-          "http://r.photo.store.qq.com/psc?/V11wzYiE4Hy8dT/45NBuzDIW489QBoVep5mcXCCE9BbMyCwxJqW3B8V1hJ4SOOGGlQN36EpQZnbRRCLmhBSiOyHu9ockdCy0f3C7QTRW*YFS5BKF8Ote*IfNLQ!/r",
-        content: talk[a.id],
-      });
-    talk[a.id] = "";
-    this.setState({ articles, talk, commentTip });
+  handleBlur = (a) => {
+    let { talkArea, articles } = this.state;
+    articles[articles.indexOf(a)].talk = false;
+    talkArea[a._id].commentHeight = 1;
+    this.setState({ talkArea, articles });
   };
 
-  handleShare = (a) => {
-    a.liked = false;
-    a.talk = false;
-    a.share = false;
-    a.focusHeight = 1;
-    a.shareBox = !a.shareBox;
-    let { articles, shareword } = this.state;
-    const article = { ...a };
-    article.sharer = `Fcater :${shareword}`;
-    article.id = articles.length + 1;
-    article.comment = [];
-    article.likedNum = 0;
-    articles.push(article);
-    shareword = "";
-    this.setState({ articles, shareword });
+  handleTalk = (a) => {
+    this.handleFocus(a);
+  };
+
+  initializeLocalArticleProperties = (articles) => {
+    const { talkArea } = this.state;
+
+    for (let a of articles) {
+      a.shareBox = false;
+      talkArea[a._id] = {};
+      talkArea[a._id].commentTip = null;
+      talkArea[a._id].commentHeight = 1;
+    }
+    this.setState({ talkArea, articles });
+  };
+
+  handleComment = async (a) => {
+    let { user, talkArea } = this.state;
+    if (!talkArea[a._id].value) {
+      talkArea[a._id].commentTip = "评论不能为空。";
+      this.setState({ talkArea });
+      return;
+    }
+    if (!user) {
+      return (window.location = "/login");
+    }
+    await articleService.reviewArticles(a._id, user, talkArea[a._id].value);
+    const { data } = await articleService.getArticles();
+    this.initializeLocalArticleProperties(data);
+    //获取文章并初始化评论区和分享开关
+
+    talkArea[a._id].commentHeight = 1;
+    talkArea[a._id].value = "";
+    talkArea[a._id].commentTip = "还想再说...";
+    this.setState({ articles: data, talkArea });
   };
 
   handleShareWord = (e) => {
-    let { shareword } = this.state;
-    shareword = e.currentTarget.value;
-    this.setState({ shareword });
+    const { share } = this.state;
+    share.shareWord = e.currentTarget.value;
+    this.setState({ share });
+  };
+
+  handleShare = async (a) => {
+    const { user, share } = this.state;
+    const { data } = await articleService.shareArticles(
+      a,
+      user,
+      share.shareWord
+    );
+    this.initializeLocalArticleProperties(data);
+    share.shareWord = "";
+    this.setState({ articles: data, share });
   };
 
   handleShareBoxOpen = (a) => {
-    a.share = !a.share;
     const { articles } = this.state;
-    articles.forEach((article) => {
-      article.shareBox = false;
-      article.share = false;
-    });
-    articles[articles.indexOf(a)].share = true;
-    articles[articles.indexOf(a)].shareBox = true;
+    articles.forEach((a) => (a.share = a.shareBox = false));
+    articles[articles.indexOf(a)].share = !articles[articles.indexOf(a)].share;
+    articles[articles.indexOf(a)].shareBox = !articles[articles.indexOf(a)]
+      .shareBox;
     this.setState({ articles });
   };
 
   handleShareBoxClose = (a) => {
-    a.share = false;
     const { articles } = this.state;
     articles[articles.indexOf(a)].shareBox = false;
+    articles[articles.indexOf(a)].share = false;
     this.setState({ articles });
   };
 
-  handleMouseEnter = (a) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(a)].focus = true;
-    this.setState({ articles });
+  handleDelete = async (a) => {
+    const { data } = await articleService.deleteArticles(a._id);
+    this.initializeLocalArticleProperties(data);
+    this.setState({ articles: data });
   };
 
-  handleMouseLeave = (a) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(a)].focus = false;
-    this.setState({ articles });
-  };
-
-  handleDelete = (a) => {
-    const { articles } = this.state;
-    articles.splice(articles.indexOf(a), 1);
-    this.setState({ articles });
-  };
-
-  handleMouseEnterComment = (a, c) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(a)].comment[
-      articles[articles.indexOf(a)].comment.indexOf(c)
-    ].mouseEnterComment = true;
-    this.setState({ articles });
-  };
-
-  handleMouseLeaveComment = (a, c) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(a)].comment[
-      articles[articles.indexOf(a)].comment.indexOf(c)
-    ].mouseEnterComment = false;
-    this.setState({ articles });
-  };
-
-  handleCommentDelete = (a, c) => {
-    const { articles } = this.state;
-    articles[articles.indexOf(a)].comment.pop(c);
-    this.setState({ articles });
+  handleCommentDelete = async (a, c) => {
+    const { data } = await articleService.deleteComment(a._id, c);
+    this.initializeLocalArticleProperties(data);
+    //获取文章并初始化评论区和分享开关
+    this.setState({ articles: data });
   };
 
   handleImgUpload = () => {
     this.imgRef.current.click();
   };
 
-  handleImgUrl = () => {
-    let { newArticleImgUrl } = this.state;
-    const index = this.imgRef.current.files.length - 1;
-    const url = window.webkitURL.createObjectURL(
-      this.imgRef.current.files[index]
-    );
-    newArticleImgUrl = url;
-    this.setState({ newArticleImgUrl });
+  handleImgUrl = (e) => {
+    const file = e.target.files[0];
+    if (file.size > 1048576) {
+      return alert("上传图片不能超过1mb");
+    }
+    if (file) {
+      const { newArticle } = this.state;
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const imgcode = e.target.result;
+        newArticle.img = imgcode;
+      };
+      //将图片转换成base64码准备就绪
+      const url = window.webkitURL.createObjectURL(
+        this.imgRef.current.files[0]
+      );
+      newArticle.imgView = url;
+      //创建一个快速预览
+      this.setState({ newArticle });
+    }
   };
 
   handleNewArticleTitle = (e) => {
-    let { newArticleTitle } = this.state;
-    newArticleTitle = e.currentTarget.value;
-    this.setState({ newArticleTitle });
+    let { newArticle } = this.state;
+    newArticle["title"] = e.currentTarget.value;
+    this.setState({ newArticle });
   };
 
-  handleNewArticle = () => {
-    let {
-      articles,
-      articleDemo,
-      newArticleTitle,
-      newArticleImgUrl,
-      newArticlePlaceholder,
-    } = this.state;
-    const article = { ...articleDemo };
-    article.title = newArticleTitle;
-    article.datelabel = gettime();
-    article.img = newArticleImgUrl;
-    article.id = articles.length + 1;
-    article.likedNum = 0;
-    article.comment = [];
-    newArticleTitle || newArticleImgUrl
-      ? articles.push(article)
-      : (newArticlePlaceholder = "请输入内容或选择一张图片");
-    newArticleTitle = newArticleImgUrl = "";
-
-    this.setState({
-      articles,
-      newArticleTitle,
-      newArticleImgUrl,
-      newArticlePlaceholder,
-    });
-  };
-
-  sortByTime = () => {
-    const { articles } = this.state;
-    return articles.reverse();
+  handleNewArticle = async () => {
+    let { newArticle } = this.state;
+    if (!newArticle.title && !newArticle.imgView) {
+      newArticle.placeholder = "请输入文字或者添加一张图片";
+      this.setState({ newArticle });
+      //没有文字和图片就无法发表
+    } else {
+      const { user, talkArea } = this.state;
+      if (!user) {
+        return (window.location = "/login");
+      }
+      newArticle["author"] = user._id;
+      const { data } = await articleService.newArticle(newArticle);
+      //添加新文章
+      newArticle.title = "";
+      newArticle.img = null;
+      newArticle.imgView = "";
+      //重置发表窗口文字和图片
+      this.initializeLocalArticleProperties(data);
+      //初始化评论区和分享开关
+      newArticle.placeholder = "诉说现在的想法";
+      this.setState({ newArticle, articles: data, talkArea });
+    }
   };
 
   render() {
-    // const { theme } = this.props;
-    // console.log(theme);
-    const sortedByTime = [...this.state.articles].reverse();
+    const {
+      user,
+      allUsersId,
+      articles,
+      newArticle,
+      talkArea,
+      share,
+    } = this.state;
+    const { theme, device, dateRevise, query } = this.props;
+    const articlesQuery =
+      query.option === "userName"
+        ? query.word
+          ? articles.filter((a) => a.author.userName.includes(query.word))
+          : articles
+        : query.word
+        ? articles.filter((a) => a.title.includes(query.word))
+        : articles;
 
-    return (
+    return theme === "daytime" ? (
       <React.Fragment>
         <div className="col">
           <CreatBox
-            ref={this.imgRef}
-            newArticleTitle={this.state.newArticleTitle}
-            imgUrl={this.state.newArticleImgUrl}
-            placeholder={this.state.newArticlePlaceholder}
-            onUpload={this.handleImgUpload}
-            onUrlChange={this.handleImgUrl}
-            onTitle={this.handleNewArticleTitle}
-            onNewArticle={this.handleNewArticle}
+            theme={theme}
+            ref={this.imgRef} //为了隐藏难看的input而设的ref
+            newArticle={newArticle} //获取待上传文章
+            placeholder={this.state.newArticlePlaceholder} //提示语
+            onUpload={this.handleImgUpload} //点击隐藏文件按钮
+            onUrlChange={this.handleImgUrl} //获取文章图片
+            onTitle={this.handleNewArticleTitle} //获取新标题
+            onNewArticle={this.handleNewArticle} //发表新文章
           ></CreatBox>
-          {sortedByTime.map((a) => (
-            <div
-              key={a.id}
-              className="p-1 mb-3 bg-white"
-              onMouseEnter={() => this.handleMouseEnter(a)}
-              onMouseLeave={() => this.handleMouseLeave(a)}
-            >
-              <Sharer a={a} />
+          {articlesQuery.map((a) => (
+            <div key={a._id} className="p-1 mb-3 bg-white rounded">
+              <Sharer
+                theme={theme}
+                a={a}
+                user={user}
+                onDelete={() => this.handleDelete(a)}
+              />
               <div className="card  border-secondary bg-light">
                 <div className="card-body">
-                  <User a={a} onDelete={this.handleDelete} />
-                  <ArticleInfo a={a} />
-                  <SVG_Group
+                  <User
+                    theme={theme}
                     a={a}
+                    user={user || {}}
+                    query={query}
+                    dateRevise={dateRevise}
+                    onDelete={() => this.handleDelete(a)}
+                  />
+                  <ArticleInfo
+                    theme={theme}
+                    a={a}
+                    query={query}
+                    onHighLight={this.handleHighLihghtString}
+                  />
+                  <SvgGroup
+                    theme={theme}
+                    device={device}
+                    a={a}
+                    user={user}
                     onLike={this.handleLike}
                     onTalk={this.handleTalk}
                     onShareBoxOpen={this.handleShareBoxOpen}
-                  ></SVG_Group>
+                  ></SvgGroup>
                   <Comment
+                    theme={theme}
                     a={a}
-                    onMouseEnterComment={this.handleMouseEnterComment}
-                    onMouseLeaveComment={this.handleMouseLeaveComment}
+                    user={user}
+                    allUsersId={allUsersId}
+                    dateRevise={dateRevise}
                     onCommentDelete={this.handleCommentDelete}
                   ></Comment>
                   <CommentArea
+                    theme={theme}
                     a={a}
-                    talk={this.state.talk}
-                    commentTip={this.state.commentTip}
+                    talkArea={talkArea}
                     onFocus={this.handleFocus}
                     onBlur={this.handleBlur}
                     onChange={this.handleChange}
@@ -295,14 +308,112 @@ class Container extends Component {
                   onDrag={this.handleDrag}
                   onStop={this.handleStop}
                 >
-                  <div>
+                  <div style={{ zIndex: "999" }}>
                     <ShareBox
-                      shareword={this.state.shareword}
-                      shareArticle={a}
-                      shareBox={a.shareBox}
-                      placeholder={this.state.shareTip}
-                      onChange={this.handleShareWord}
+                      theme={theme}
+                      user={user}
+                      a={a}
+                      share={share}
                       onClose={() => this.handleShareBoxClose(a)}
+                      onChange={this.handleShareWord}
+                      onShare={() => this.handleShare(a)}
+                    />
+                  </div>
+                </Draggable>
+              </div>
+            </div>
+          ))}
+        </div>
+      </React.Fragment>
+    ) : (
+      //夜间模式
+      <React.Fragment>
+        <div className="col">
+          <CreatBox
+            theme={theme}
+            ref={this.imgRef} //为了隐藏难看的input而设的ref
+            newArticle={newArticle} //获取待上传文章
+            placeholder={this.state.newArticlePlaceholder} //提示语
+            onUpload={this.handleImgUpload} //点击隐藏文件按钮
+            onUrlChange={this.handleImgUrl} //获取文章图片
+            onTitle={this.handleNewArticleTitle} //获取新标题
+            onNewArticle={this.handleNewArticle} //发表新文章
+          ></CreatBox>
+          {articlesQuery.map((a) => (
+            <div key={a._id} className="p-1 mb-3 bg-dark text-light rounded">
+              <Sharer
+                theme={theme}
+                a={a}
+                user={user}
+                onDelete={() => this.handleDelete(a)}
+              />
+              <div className="card border-secondary bg-dark text-light">
+                <div className="card-body">
+                  <User
+                    theme={theme}
+                    a={a}
+                    user={user || {}}
+                    query={query}
+                    dateRevise={dateRevise}
+                    onDelete={() => this.handleDelete(a)}
+                  />
+                  <ArticleInfo
+                    theme={theme}
+                    a={a}
+                    query={query}
+                    onHighLight={this.handleHighLihghtString}
+                  />
+                  <SvgGroup
+                    theme={theme}
+                    device={device}
+                    a={a}
+                    user={user}
+                    onLike={this.handleLike}
+                    onTalk={this.handleTalk}
+                    onShareBoxOpen={this.handleShareBoxOpen}
+                  ></SvgGroup>
+                  <Comment
+                    theme={theme}
+                    a={a}
+                    user={user}
+                    allUsersId={allUsersId}
+                    dateRevise={dateRevise}
+                    onCommentDelete={this.handleCommentDelete}
+                  ></Comment>
+                  <CommentArea
+                    theme={theme}
+                    a={a}
+                    talkArea={talkArea}
+                    onFocus={this.handleFocus}
+                    onBlur={this.handleBlur}
+                    onChange={this.handleChange}
+                    onComment={this.handleComment}
+                  ></CommentArea>
+                </div>
+                <Draggable
+                  axis="both"
+                  handle=".handle"
+                  defaultPosition={{ x: 0, y: 0 }}
+                  bounds={{
+                    left: -820,
+                    right: 625,
+                    top: -470,
+                  }}
+                  position={null}
+                  grid={[5, 5]}
+                  scale={1}
+                  onStart={this.handleStart}
+                  onDrag={this.handleDrag}
+                  onStop={this.handleStop}
+                >
+                  <div style={{ zIndex: "999" }}>
+                    <ShareBox
+                      theme={theme}
+                      user={user}
+                      a={a}
+                      share={share}
+                      onClose={() => this.handleShareBoxClose(a)}
+                      onChange={this.handleShareWord}
                       onShare={() => this.handleShare(a)}
                     />
                   </div>
