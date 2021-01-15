@@ -4,7 +4,7 @@ import ShareBox from "../common/shareBox";
 import CreatBox from "../common/creatBox";
 import CommentArea from "./commentArea";
 import Comment from "./comment";
-import SvgGroup from "./svg-group";
+import SvgGroup from "./svgGroup";
 import User from "./user";
 import Draggable from "react-draggable";
 import ArticleInfo from "./articleInfo";
