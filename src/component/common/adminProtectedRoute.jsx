@@ -12,7 +12,12 @@ const AdminProtectedRoute = ({
     <Route
       {...rest}
       render={(props) => {
-        if (!auth.getCurrentUserOffLine().isAdmin) return <Redirect to="/" />;
+        if (
+          !auth.getCurrentUserOffLine() ||
+          (auth.getCurrentUserOffLine() &&
+            !auth.getCurrentUserOffLine().isAdmin)
+        )
+          return <Redirect to="/" />;
         return Component ? <Component {...props} /> : render(props);
       }}
     />

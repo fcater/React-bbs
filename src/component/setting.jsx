@@ -22,6 +22,29 @@ class Setting extends Component {
     this.setState({ data, imgUrl: user.portrait });
   }
 
+  translate = (errors) => {
+    //手动汉化...
+    //邮箱
+    errors.email === `"邮箱" is not allowed to be empty` &&
+      (errors.email = "邮箱不能为空");
+    errors.email === `"邮箱" length must be at least 5 characters long` &&
+      (errors.email = "邮箱至少大于5个字符");
+    errors.email === `"邮箱" must be a valid email` &&
+      (errors.email = "请输入正确的邮箱");
+    errors.email ===
+      `"邮箱" length must be less than or equal to 30 characters long` &&
+      (errors.email = "邮箱必须小于或等于30个字符");
+    //密码
+    errors.password === `"密码" is not allowed to be empty` &&
+      (errors.password = "密码不能为空");
+    errors.password === `"密码" length must be at least 6 characters long` &&
+      (errors.password = "密码至少大于6个字符");
+    errors.password ===
+      `"密码" length must be less than or equal to 15 characters long` &&
+      (errors.password = "密码必须小于等于15个字符");
+    return errors;
+  };
+
   schemaObj = {
     _id: Joi.string().max(50).required(),
     userName: Joi.string().min(3).max(10).required().label("用户名"),
@@ -44,6 +67,8 @@ class Setting extends Component {
       e.currentTarget.id,
       e.currentTarget.value
     );
+    this.translate(errors);
+
     this.setState({ data, errors });
   };
 

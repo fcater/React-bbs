@@ -8,11 +8,10 @@ const HeartSVG = ({ theme, like }) => {
       <div className="row ml-2">
         <i
           className={
-            like
-              ? "fa  fa-heart fa-lg text-danger mt-1"
-              : "fa fa-heart-o fa-lg "
+            like ? "fa fa-heart fa-lg text-danger mt-1" : "fa fa-heart-o fa-lg"
           }
         ></i>
+        <i className="fa fa-heart-o"></i>
         <div className="row ml-3 text-danger" style={{ width: "80%" }}>
           {userList.map((u) => (
             <a
@@ -44,11 +43,11 @@ const LikeSVG = ({ a, device, user, onLike }) => {
     <i
       className={
         user && a.like && a.like.some((u) => u._id === user._id)
-          ? "fa fa-thumbs-up  text-danger"
+          ? "fa fa-thumbs-up  text-danger pointer"
           : "fa fa-thumbs-o-up  pointer"
       }
-      // onClick={onLike}
-      onClick={!a.like.some((u) => u._id === user._id) ? onLike : null}
+      onClick={onLike}
+      // onClick={!a.like.some((u) => u._id === user._id) ? onLike : null}
       //判断是否点过赞
       style={{ fontSize: device === "mobile" ? "1em" : "2em" }}
     ></i>

@@ -107,6 +107,7 @@ const NavBar = ({ theme, user, onQuery, onQueryOption }) => {
               <div
                 className="dropdown-menu dropdown-menu-right"
                 aria-labelledby="navbarDropdown"
+                style={{ zIndex: 99999 }}
               >
                 <Link className="dropdown-item" to="/personal-information">
                   个人资料
@@ -245,6 +246,7 @@ const NavBar = ({ theme, user, onQuery, onQueryOption }) => {
               <div
                 className="dropdown-menu dropdown-menu-right bg-dark"
                 aria-labelledby="navbarDropdown"
+                style={{ zIndex: 99999 }}
               >
                 <Link
                   className="dropdown-item text-light"

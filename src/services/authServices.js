@@ -30,15 +30,14 @@ export async function getCurrentUser() {
 
 export function getCurrentUserOffLine() {
     try {
-        const jwt = localStorage.getItem(tokenKey)
-        return jwtDecode(jwt)
+        return jwtDecode(localStorage.getItem(tokenKey))
     }
     catch (ex) { return null }
 }
 
 export function getCurrentUserId() {
     try {
-        return jwtDecode(localStorage.getItem(tokenKey))
+        return jwtDecode = localStorage.getItem(tokenKey)
     }
     catch (ex) { return null }
 }
